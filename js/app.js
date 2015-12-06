@@ -81,7 +81,7 @@ $( document ).ready( function() {
   // use value of search field to filter
   var $quicksearch = $('.quicksearch').keyup( debounce( function() {
     qsRegex = new RegExp( $quicksearch.val(), 'gi' );
-    $container.isotope();
+    $grid.isotope();
   }, 200 ) );
   
 });
