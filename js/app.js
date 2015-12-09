@@ -2,10 +2,14 @@
 
 $( document ).ready( function() {
   // init Isotope
+  
+  var qsRegex;
+var buttonFilter;
+// init Isotope
   var $container = $('.isotope').isotope({
-    itemSelector: '.element-item',
-    layoutMode: 'fitRows',
-    getSortData: {
+        itemSelector: '.element-item',
+        layoutMode: 'fitRows',
+getSortData: {
       name: '.name',
       symbol: '.symbol',
       number: '.number parseInt',
@@ -14,10 +18,68 @@ $( document ).ready( function() {
         var weight = $( itemElem ).find('.weight').text(); 
         return parseFloat( weight.replace( /[\(\)]/g, '') );
       }
-    }
-	
+    },
+        filter: function() {
+            var $this = $(this);
+            var searchResult = qsRegex ? $this.text().match( qsRegex ) : true;
+            var buttonResult = buttonFilter ? $this.is( buttonFilter ) : true;
+            return searchResult && buttonResult;
+        },
+        // sort top priority to lowest priority
+        sortBy: ['resortType', 'country', 'state', 'city']
   });
 
+// -------- Filter FUNCTION ----------//
+$('#filters').on( 'click', 'button', function() {
+    buttonFilter = $( this ).attr('data-filter');
+    console.log("Filter button click", buttonFilter);
+    $container.isotope();
+});
+
+// ----------- Search FUNCTION --------//
+// use value of search field to filter
+var $quicksearch = $('.quicksearch').keyup( debounce( function() {
+    qsRegex = new RegExp( $quicksearch.val(), 'gi' );
+    console.log("Search input",qsRegex);
+    $container.isotope();
+}) );
+
+/*
+// ------------- Sort FUNCTION -------------//
+// bind sort button click
+$('#sorts').on( 'click', 'button', function() {
+    var sortValue = $(this).attr('data-sort-value');
+    // make an array of values
+    sortValue = sortValue.split(',');
+    console.log("Sorting button click",sortValue);
+    $container.isotope({ 
+                sortBy: ['resortType', sortValue]
+            });
+});
+*/
+    // bind sort button click
+  $('#sorts').on( 'click', 'button', function() {
+    var sortByValue = $(this).attr('data-sort-by');
+        console.log("Sort input",sortByValue);
+    $container.isotope({ 
+        sortBy: sortByValue }
+        );
+  });
+ 
+// debounce so filtering doesn't happen every millisecond
+function debounce( fn, threshold ) {
+  var timeout;
+  return function debounced() {
+    if ( timeout ) {
+      clearTimeout( timeout );
+    }
+    function delayed() {
+      fn();
+      timeout = null;
+    }
+    setTimeout( delayed, threshold || 100 );
+  };
+}
   // filter functions
   var filterFns = {
     // show if number is greater than 50
@@ -31,93 +93,6 @@ $( document ).ready( function() {
       return name.match( /ium$/ );
     }
   };
-
-  // bind filter button click
-  $('#filters').on( 'click', 'button', function() {
-    var filterValue = $( this ).attr('data-filter');
-    // use filterFn if matches value
-    filterValue = filterFns[ filterValue ] || filterValue;
-    $container.isotope({ filter: filterValue });
-  });
-
-  // bind sort button click
-  $('#sorts').on( 'click', 'button', function() {
-    var sortByValue = $(this).attr('data-sort-by');
-    $container.isotope({ sortBy: sortByValue });
-  });
-  
-  // change is-checked class on buttons
-  $('.button-group').each( function( i, buttonGroup ) {
-    var $buttonGroup = $( buttonGroup );
-    $buttonGroup.on( 'click', 'button', function() {
-      $buttonGroup.find('.is-checked').removeClass('is-checked');
-      $( this ).addClass('is-checked');
-    });
-  });
-  
-  
-  
-  
- 
-  
-  
-  
-    //##########################################################################
-  $( function() {
-  // quick search regex
-  var qsRegex;
-  //alert("Hello there!");
-  
-  // init Isotope
-  
-  var $grid = $('.isotope').isotope({
-    itemSelector: '.element-item',
-    layoutMode: 'fitRows',
-    filter: function() {
-      return qsRegex ? $(this).text().match( qsRegex ) : true;
-    }
-  });
-
-  // use value of search field to filter
-  var $quicksearch = $('.quicksearch').keyup( debounce( function() {
-    qsRegex = new RegExp( $quicksearch.val(), 'gi' );
-    $grid.isotope();
-  }, 200 ) );
-  
-});
-
-// debounce so filtering doesn't happen every millisecond
-function debounce( fn, threshold ) {
-  var timeout;
-  return function debounced() {
-    if ( timeout ) {
-      clearTimeout( timeout );
-    }
-    function delayed() {
-      fn();
-      timeout = null;
-    }
-    timeout = setTimeout( delayed, threshold || 100 );
-  }
-}
-
-  //##########################################################################
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 });
 
 
